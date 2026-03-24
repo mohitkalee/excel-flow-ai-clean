@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -36,10 +37,12 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
-          <Button variant="ghost" size="sm">
-            Log in
+          <Button variant="ghost" size="sm" asChild>
+            <Link to="/login">Log in</Link>
           </Button>
-          <Button size="sm">Start Free</Button>
+          <Button size="sm" asChild>
+            <Link to="/signup">Start Free</Link>
+          </Button>
         </div>
 
         <button
