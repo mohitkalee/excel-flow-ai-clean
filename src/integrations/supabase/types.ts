@@ -14,7 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      processed_files: {
+        Row: {
+          cleaned_file_url: string | null
+          created_at: string
+          duplicates_removed: number | null
+          error_message: string | null
+          formats_fixed: number | null
+          id: string
+          original_file_url: string | null
+          original_filename: string
+          rows_processed: number | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cleaned_file_url?: string | null
+          created_at?: string
+          duplicates_removed?: number | null
+          error_message?: string | null
+          formats_fixed?: number | null
+          id?: string
+          original_file_url?: string | null
+          original_filename: string
+          rows_processed?: number | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cleaned_file_url?: string | null
+          created_at?: string
+          duplicates_removed?: number | null
+          error_message?: string | null
+          formats_fixed?: number | null
+          id?: string
+          original_file_url?: string | null
+          original_filename?: string
+          rows_processed?: number | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
