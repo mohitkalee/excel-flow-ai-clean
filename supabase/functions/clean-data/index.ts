@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
     const { result } = createResponsesCall(
       req,
       { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
-      [{ role: "system", content: system }, { role: "user", content: user_msg }],
+      [{ role: "user", content: system + "\n\n" + user_msg }],
     );
     let text = "";
     try {
