@@ -71,7 +71,7 @@ const TestimonialsSection = () => {
             >
               <div className="flex gap-0.5 mb-4">
                 {Array.from({ length: t.rating }).map((_, i) => (
-                  <Star key={i} size={14} className="fill-amber-400 text-amber-400" />
+                  <Star key={i} size={14} className="fill-primary text-primary" />
                 ))}
               </div>
               <p className="text-foreground/80 text-sm leading-relaxed mb-4">"{t.content}"</p>

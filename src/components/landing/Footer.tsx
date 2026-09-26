@@ -1,3 +1,5 @@
+import { Sparkles } from "lucide-react";
+
 const Footer = () => {
   return (
     <footer className="border-t border-border py-12 px-4 md:px-8">
@@ -6,9 +8,9 @@ const Footer = () => {
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 text-lg font-bold text-foreground mb-3">
               <div className="w-7 h-7 rounded-lg bg-primary flex items-center justify-center">
-                <span className="text-primary-foreground text-xs font-bold">E</span>
+                <Sparkles className="text-primary-foreground" size={14} />
               </div>
-              ExcelFlow AI
+              Excel Flow AI
             </div>
             <p className="text-sm text-muted-foreground">
               AI-powered data cleaning for modern teams.

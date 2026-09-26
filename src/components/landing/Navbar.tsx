@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Menu, X } from "lucide-react";
+import { Menu, Sparkles, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -15,16 +15,16 @@ const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-      <div className="container-tight flex items-center justify-between h-16 px-4 md:px-8">
-        <a href="#" className="flex items-center gap-2 text-xl font-bold text-foreground">
-          <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
-            <span className="text-primary-foreground text-sm font-bold">E</span>
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border/70">
+      <div className="container-tight flex items-center justify-between h-[72px] px-4 md:px-8">
+        <a href="#" className="flex items-center gap-2.5 text-xl font-bold text-foreground">
+          <div className="w-9 h-9 rounded-lg bg-primary flex items-center justify-center shadow-lg shadow-primary/20">
+            <Sparkles className="text-primary-foreground" size={18} />
           </div>
-          ExcelFlow AI
+          Excel Flow AI
         </a>
 
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-10">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -40,17 +40,20 @@ const Navbar = () => {
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Log in</Link>
           </Button>
-          <Button size="sm" asChild>
-            <Link to="/signup">Start Free</Link>
+          <Button size="sm" className="rounded-full px-6" asChild>
+            <Link to="/signup">Get Started</Link>
           </Button>
         </div>
 
-        <button
-          className="md:hidden text-foreground"
+        <Button
+          variant="ghost"
+          size="icon"
+          className="md:hidden"
           onClick={() => setIsOpen(!isOpen)}
+          aria-label={isOpen ? "Close menu" : "Open menu"}
         >
           {isOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
+        </Button>
       </div>
 
       <AnimatePresence>
@@ -73,11 +76,11 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex gap-3 pt-2">
-                <Button variant="ghost" size="sm" className="flex-1">
-                  Log in
+                <Button variant="ghost" size="sm" className="flex-1" asChild>
+                  <Link to="/login">Log in</Link>
                 </Button>
-                <Button size="sm" className="flex-1">
-                  Start Free
+                <Button size="sm" className="flex-1" asChild>
+                  <Link to="/signup">Get Started</Link>
                 </Button>
               </div>
             </div>

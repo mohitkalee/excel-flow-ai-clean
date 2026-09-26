@@ -1,13 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 @layer base {
   :root {
-    --background: 210 20% 98%;
-    --foreground: 222 47% 11%;
+    --background: 0 0% 100%;
+    --foreground: 224 47% 11%;
 
     --card: 0 0% 100%;
     --card-foreground: 222 47% 11%;
@@ -15,14 +13,14 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 11%;
 
-    --primary: 221 83% 53%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 245 75% 57%;
+    --primary-foreground: 0 0% 100%;
 
     --secondary: 210 40% 96%;
     --secondary-foreground: 222 47% 11%;
 
-    --muted: 210 25% 95%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 220 33% 98%;
+    --muted-foreground: 215 20% 42%;
 
     --accent: 152 69% 41%;
     --accent-foreground: 0 0% 100%;
@@ -32,11 +30,12 @@
 
     --border: 214 32% 91%;
     --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --ring: 245 75% 57%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    --hero-gradient: linear-gradient(135deg, hsl(221, 83%, 53%) 0%, hsl(250, 80%, 60%) 100%);
+    --hero-gradient: linear-gradient(135deg, hsl(245 75% 57%) 0%, hsl(255 78% 63%) 100%);
+    --hero-glow: radial-gradient(circle at 78% 38%, hsl(245 75% 57% / 0.12), transparent 31%), radial-gradient(circle at 55% 82%, hsl(152 69% 41% / 0.08), transparent 25%);
     --surface-elevated: 0 0% 100%;
     --surface-subtle: 210 25% 97%;
 
@@ -61,7 +60,7 @@
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-semibold tracking-tight;
+    @apply font-semibold;
   }
 }
 
@@ -72,7 +71,7 @@
   }
 
   .glass-card {
-    @apply bg-card/80 backdrop-blur-xl border border-border/50 shadow-lg;
+    @apply bg-card border border-border shadow-lg shadow-foreground/5;
   }
 
   .section-padding {
@@ -81,5 +80,10 @@
 
   .container-tight {
     @apply max-w-6xl mx-auto;
+  }
+
+  .hero-surface {
+    background-color: hsl(var(--surface-subtle));
+    background-image: var(--hero-glow);
   }
 }

@@ -72,9 +72,9 @@ const PricingSection = () => {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.15 }}
-              className={`rounded-2xl p-8 relative ${
+              className={`rounded-xl p-8 relative ${
                 plan.popular
-                  ? "bg-foreground text-background shadow-2xl scale-105"
+                  ? "bg-primary text-primary-foreground shadow-2xl shadow-primary/20 scale-105"
                   : "glass-card"
               }`}
             >

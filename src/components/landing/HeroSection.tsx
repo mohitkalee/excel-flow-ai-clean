@@ -1,84 +1,71 @@
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Check, ShieldCheck, Sparkles, TimerReset, WandSparkles } from "lucide-react";
 import { motion } from "framer-motion";
 
 const HeroSection = () => {
   return (
-    <section className="relative pt-32 pb-20 md:pt-40 md:pb-32 px-4 md:px-8 overflow-hidden">
-      {/* Background decoration */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-20 left-1/2 -translate-x-1/2 w-[800px] h-[600px] rounded-full bg-primary/5 blur-3xl" />
-        <div className="absolute top-40 right-0 w-[400px] h-[400px] rounded-full bg-accent/5 blur-3xl" />
-      </div>
-
-      <div className="container-tight">
+    <section className="hero-surface relative pt-32 pb-16 md:pt-44 md:pb-24 px-4 md:px-8 overflow-hidden">
+      <div className="container-tight grid items-center gap-14 lg:grid-cols-[1.02fr_0.98fr] lg:gap-16">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="text-center max-w-4xl mx-auto"
+          className="text-center lg:text-left"
         >
-          {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-primary/10 text-primary text-sm font-medium mb-8">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 text-primary text-sm font-medium mb-7">
             <Sparkles size={14} />
-            AI-Powered Data Cleaning Engine
+            AI-Powered Data Cleaning
           </div>
 
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-foreground leading-[1.1] mb-6">
-            Clean Your Excel Data{" "}
-            <span className="text-gradient">in Seconds</span>
-            <br />
-            — No Manual Work
+          <h1 className="text-5xl md:text-6xl lg:text-[4.25rem] font-bold text-foreground leading-[1.02] mb-6">
+            Chaos to Clean Data
+            <span className="block text-primary">in Seconds</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-            Upload messy spreadsheets and let AI fix formatting, remove
-            duplicates, and organize your data instantly. Save 5+ hours on
-            every dataset.
+          <p className="text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0 mb-8 leading-relaxed">
+            Stop wasting hours on messy spreadsheets. Upload your Excel or CSV file, and let AI automatically remove duplicates, fix formatting, and organize your data perfectly.
           </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Button size="lg" className="text-base px-8 h-12 shadow-lg shadow-primary/25">
-              Upload Your File
+          <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+            <Button size="lg" className="text-base px-8 h-12 rounded-full shadow-lg shadow-primary/25">
+              Start Cleaning Free
               <ArrowRight className="ml-2" size={18} />
             </Button>
-            <Button variant="outline" size="lg" className="text-base px-8 h-12">
-              Try Demo
+            <Button variant="outline" size="lg" className="text-base px-8 h-12 rounded-full bg-background">
+              See How It Works
             </Button>
           </div>
 
-          {/* Trust line */}
-          <p className="mt-8 text-sm text-muted-foreground">
-            Trusted by <span className="font-semibold text-foreground">10,000+</span> businesses
-            &nbsp;·&nbsp; No credit card required
-          </p>
+          <div className="mt-9 pt-7 border-t border-border flex flex-wrap items-center justify-center lg:justify-start gap-x-7 gap-y-3 text-sm text-muted-foreground">
+            <span className="flex items-center gap-2"><ShieldCheck size={18} className="text-accent" /> Secure file processing</span>
+            <span className="flex items-center gap-2"><TimerReset size={18} className="text-accent" /> Save 5+ hours/week</span>
+          </div>
         </motion.div>
 
-        {/* Hero Visual */}
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
-          className="mt-16 max-w-4xl mx-auto"
+          className="w-full max-w-xl mx-auto"
         >
-          <div className="glass-card rounded-2xl p-1.5">
-            <div className="bg-muted rounded-xl overflow-hidden">
-              {/* Before/After preview */}
-              <div className="grid grid-cols-1 md:grid-cols-2">
-                {/* Before */}
-                <div className="p-6 border-b md:border-b-0 md:border-r border-border/50">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-destructive/70" />
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">Before</span>
+          <div className="bg-card border border-border rounded-2xl p-6 md:p-7 shadow-2xl shadow-foreground/10">
+            <div className="flex items-center justify-between mb-5">
+              <p className="font-semibold text-muted-foreground">Before &amp; After</p>
+              <span className="rounded-full bg-accent/10 px-3 py-1 text-xs font-semibold text-accent">Live Preview</span>
+            </div>
+            <div>
+                <div>
+                  <div className="flex items-center gap-2 mb-3 text-destructive">
+                    <span className="w-2 h-2 rounded-full bg-destructive" />
+                    <span className="text-xs font-semibold">Messy Data</span>
                   </div>
-                  <div className="space-y-2 font-mono text-xs">
+                  <div className="rounded-xl border border-destructive/15 bg-destructive/5 p-3 space-y-1.5 font-mono text-xs">
                     {[
                       ["john doe", "03/15/23", "$1,200.5", "new york"],
                       ["JANE SMITH", "2023-03-16", "1200.50", "NY"],
                       ["john doe", "March 15", "$1200", "New York"],
-                      ["Bob Wilson", "15/3/2023", "USD 1,201", "new york"],
                     ].map((row, i) => (
-                      <div key={i} className="grid grid-cols-4 gap-2 py-1.5 px-2 rounded bg-destructive/5 text-foreground/70">
+                      <div key={i} className="grid grid-cols-4 gap-2 text-muted-foreground">
                         {row.map((cell, j) => (
                           <span key={j} className="truncate">{cell}</span>
                         ))}
@@ -86,31 +73,41 @@ const HeroSection = () => {
                     ))}
                   </div>
                 </div>
-                {/* After */}
-                <div className="p-6">
-                  <div className="flex items-center gap-2 mb-4">
-                    <div className="w-3 h-3 rounded-full bg-accent" />
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">After</span>
+                <div className="flex justify-center py-3">
+                  <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center">
+                    <WandSparkles className="text-primary" size={19} />
                   </div>
-                  <div className="space-y-2 font-mono text-xs">
+                </div>
+                <div>
+                  <div className="flex items-center gap-2 mb-3 text-accent">
+                    <span className="w-2 h-2 rounded-full bg-accent" />
+                    <span className="text-xs font-semibold">Clean Data</span>
+                  </div>
+                  <div className="rounded-xl border border-accent/15 bg-accent/5 p-3 space-y-1.5 font-mono text-xs">
+                    <div className="grid grid-cols-4 gap-2 pb-1 border-b border-accent/20 text-muted-foreground font-semibold">
+                      <span>Name</span><span>Date</span><span>Amount</span><span>Location</span>
+                    </div>
                     {[
                       ["John Doe", "2023-03-15", "$1,200.50", "New York"],
                       ["Jane Smith", "2023-03-16", "$1,200.50", "New York"],
-                      ["Bob Wilson", "2023-03-15", "$1,201.00", "New York"],
                     ].map((row, i) => (
-                      <div key={i} className="grid grid-cols-4 gap-2 py-1.5 px-2 rounded bg-accent/5 text-foreground/90">
+                      <div key={i} className="grid grid-cols-4 gap-2 text-foreground/80">
                         {row.map((cell, j) => (
                           <span key={j} className="truncate">{cell}</span>
                         ))}
                       </div>
                     ))}
-                    <div className="flex items-center gap-2 pt-2 text-accent text-xs font-medium">
-                      <Sparkles size={12} />
-                      1 duplicate removed · 4 formats fixed
-                    </div>
                   </div>
                 </div>
-              </div>
+                <div className="grid grid-cols-3 gap-2 mt-4 text-center">
+                  {[["37", "Duplicates"], ["142", "Dates fixed"], ["318", "Formats fixed"]].map(([value, label]) => (
+                    <div key={label} className="rounded-lg bg-muted px-2 py-2">
+                      <p className="text-sm font-bold text-foreground">{value}</p>
+                      <p className="text-[10px] text-muted-foreground">{label}</p>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-4 flex items-center justify-center gap-1.5 text-xs font-semibold text-accent"><Check size={14} /> Your data is clean</p>
             </div>
           </div>
         </motion.div>
