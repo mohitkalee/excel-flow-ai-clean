@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Check } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -109,8 +110,11 @@ const PricingSection = () => {
                 className="w-full"
                 variant={plan.popular ? "secondary" : "default"}
                 size="lg"
+                asChild
               >
-                {plan.cta}
+                <Link to="/signup" state={{ selectedPlan: plan.name }}>
+                  {plan.cta}
+                </Link>
               </Button>
             </motion.div>
           ))}

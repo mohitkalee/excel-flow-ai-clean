@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const FinalCTA = () => {
   return (
@@ -26,9 +27,12 @@ const FinalCTA = () => {
               size="lg"
               variant="secondary"
               className="text-base px-8 h-12 shadow-lg"
+              asChild
             >
-              Start Free
-              <ArrowRight className="ml-2" size={18} />
+              <Link to="/signup">
+                Start Free
+                <ArrowRight className="ml-2" size={18} />
+              </Link>
             </Button>
           </div>
         </motion.div>

@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Check, ShieldCheck, Sparkles, TimerReset, WandSparkles } from "lucide-react";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 
 const HeroSection = () => {
   return (
@@ -27,12 +28,14 @@ const HeroSection = () => {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-            <Button size="lg" className="text-base px-8 h-12 rounded-full shadow-lg shadow-primary/25">
-              Start Cleaning Free
-              <ArrowRight className="ml-2" size={18} />
+            <Button size="lg" className="text-base px-8 h-12 rounded-full shadow-lg shadow-primary/25" asChild>
+              <Link to="/signup">
+                Start Cleaning Free
+                <ArrowRight className="ml-2" size={18} />
+              </Link>
             </Button>
-            <Button variant="outline" size="lg" className="text-base px-8 h-12 rounded-full bg-background">
-              See How It Works
+            <Button variant="outline" size="lg" className="text-base px-8 h-12 rounded-full bg-background" asChild>
+              <a href="#how-it-works">See How It Works</a>
             </Button>
           </div>
 
