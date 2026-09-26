@@ -10,10 +10,9 @@ const FinalCTA = () => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="relative rounded-3xl overflow-hidden p-12 md:p-20 text-center"
+          className="relative rounded-2xl overflow-hidden p-12 md:p-20 text-center"
           style={{ background: "var(--hero-gradient)" }}
         >
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent)]" />
           <div className="relative z-10">
             <h2 className="text-3xl md:text-5xl font-bold text-primary-foreground mb-4">
               Stop Wasting Hours on Excel.
