@@ -39,10 +39,14 @@ Deno.serve(async (req) => {
       { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
       [{ role: "system", content: system }, { role: "user", content: user_msg }],
     );
-    let text: string;
+    let text = "";
     try {
-      text = await result.text;
+      for await (const part of result.fullStream) {
+        if (part.type === "text-delta") text += (part as any).text ?? (part as any).delta ?? "";
+        if (part.type === "error") throw (part as any).error;
+      }
     } catch (e: any) {
+      console.error("AI error", e?.statusCode, e?.message, e?.responseBody);
       const status = e?.statusCode ?? e?.lastError?.statusCode;
       if (status === 402) return json({ error: "AI credits are used up. Please add credits to continue." }, 402);
       if (status === 429) return json({ error: "Too many requests right now. Please try again in a minute." }, 429);
