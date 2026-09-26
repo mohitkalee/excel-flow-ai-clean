@@ -1,4 +1,3 @@
-import { useCallback, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,7 +19,6 @@ import {
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [uploading, setUploading] = useState(false);
 
   const { data: files, refetch } = useQuery({
     queryKey: ["processed-files"],
@@ -33,53 +31,6 @@ const Dashboard = () => {
       return data;
     },
   });
-
-  const handleFileUpload = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file || !user) return;
-
-      const validTypes = [
-        "text/csv",
-        "application/vnd.ms-excel",
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-      ];
-      if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|xls|xlsx)$/i)) {
-        toast.error("Please upload a CSV or Excel file.");
-        return;
-      }
-      if (file.size > 10 * 1024 * 1024) {
-        toast.error("File size must be under 10MB.");
-        return;
-      }
-
-      setUploading(true);
-      try {
-        const filePath = `${user.id}/${Date.now()}_${file.name}`;
-        const { error: uploadError } = await supabase.storage
-          .from("uploads")
-          .upload(filePath, file);
-        if (uploadError) throw uploadError;
-
-        const { error: insertError } = await supabase.from("processed_files").insert({
-          user_id: user.id,
-          original_filename: file.name,
-          original_file_url: filePath,
-          status: "pending",
-        });
-        if (insertError) throw insertError;
-
-        toast.success("File uploaded! Processing will begin shortly.");
-        refetch();
-      } catch (err: any) {
-        toast.error(err.message || "Upload failed");
-      } finally {
-        setUploading(false);
-        e.target.value = "";
-      }
-    },
-    [user, refetch]
-  );
 
   const handleSignOut = async () => {
     await signOut();
