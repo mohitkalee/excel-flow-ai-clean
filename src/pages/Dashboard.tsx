@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { DataCleaner } from "@/components/dashboard/DataCleaner";
 import {
   Upload,
   Download,
@@ -122,40 +123,7 @@ const Dashboard = () => {
       </header>
 
       <main className="container-tight px-4 md:px-8 py-8">
-        {/* Upload area */}
-        <div className="glass-card rounded-2xl p-8 mb-8 text-center">
-          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
-            <Upload className="text-primary" size={28} />
-          </div>
-          <h2 className="text-xl font-semibold text-foreground mb-2">Upload a File</h2>
-          <p className="text-muted-foreground text-sm mb-6">
-            Drag & drop or click to upload a CSV or Excel file (max 10MB)
-          </p>
-          <label className="inline-block">
-            <input
-              type="file"
-              accept=".csv,.xls,.xlsx"
-              onChange={handleFileUpload}
-              className="hidden"
-              disabled={uploading}
-            />
-            <Button asChild disabled={uploading}>
-              <span>
-                {uploading ? (
-                  <>
-                    <Loader2 size={16} className="mr-2 animate-spin" />
-                    Uploading…
-                  </>
-                ) : (
-                  <>
-                    <FileSpreadsheet size={16} className="mr-2" />
-                    Choose File
-                  </>
-                )}
-              </span>
-            </Button>
-          </label>
-        </div>
+        <DataCleaner onDone={() => refetch()} />
 
         {/* File history */}
         <div>
