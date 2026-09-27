@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
 
     const { result } = createResponsesCall(
       req,
-      { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra" },
+      { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra", effort: "high" },
       [{ role: "user", content: system + "\n\n" + user_msg }],
     );
     let text = "";
@@ -58,8 +58,18 @@ Deno.serve(async (req) => {
     const out = JSON.parse(match[0]);
 
     if (fileId) {
+      const esc = (v: unknown) => {
+        const s = String(v ?? "");
+        return /[",\n\r]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+      };
+      const csv = [out.columns, ...(out.rows ?? [])].map((r: unknown[]) => r.map(esc).join(",")).join("\n");
+      const cleanPath = `${user.id}/cleaned/${fileId}.csv`;
+      const { error: upErr } = await supabase.storage.from("uploads")
+        .upload(cleanPath, new Blob([csv], { type: "text/csv" }), { upsert: true, contentType: "text/csv" });
+      if (upErr) console.error("save clean file", upErr);
       await supabase.from("processed_files").update({
         status: "done",
+        cleaned_file_url: upErr ? null : cleanPath,
         rows_processed: out.rows?.length ?? 0,
         duplicates_removed: out.duplicates_removed ?? 0,
         formats_fixed: out.formats_fixed ?? 0,
