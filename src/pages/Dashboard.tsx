@@ -32,6 +32,17 @@ const Dashboard = () => {
     },
   });
 
+  const downloadFile = async (path: string, name: string) => {
+    const { data, error } = await supabase.storage.from("uploads").download(path);
+    if (error || !data) return toast.error("Could not download this file.");
+    const url = URL.createObjectURL(data);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = name.replace(/\.(csv|xlsx?)$/i, "") + "_clean.csv";
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const handleSignOut = async () => {
     await signOut();
     navigate("/");
@@ -74,11 +85,29 @@ const Dashboard = () => {
       </header>
 
       <main className="container-tight px-4 md:px-8 py-8">
+        <div className="mb-6">
+          <h1 className="text-2xl font-bold text-foreground">Welcome back</h1>
+          <p className="text-muted-foreground text-sm">Your files and results, all in one place.</p>
+        </div>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+          {[
+            ["Files cleaned", files?.filter((f) => f.status === "done").length ?? 0],
+            ["Rows cleaned", files?.reduce((s, f) => s + (f.rows_processed ?? 0), 0) ?? 0],
+            ["Duplicates removed", files?.reduce((s, f) => s + (f.duplicates_removed ?? 0), 0) ?? 0],
+            ["Values fixed", files?.reduce((s, f) => s + (f.formats_fixed ?? 0), 0) ?? 0],
+          ].map(([label, value]) => (
+            <div key={label as string} className="glass-card rounded-xl p-4">
+              <p className="text-2xl font-bold text-foreground">{Number(value).toLocaleString()}</p>
+              <p className="text-xs text-muted-foreground">{label}</p>
+            </div>
+          ))}
+        </div>
+
         <DataCleaner onDone={() => refetch()} />
 
         {/* File history */}
         <div>
-          <h3 className="text-lg font-semibold text-foreground mb-4">Processed Files</h3>
+          <h3 className="text-lg font-semibold text-foreground mb-4">Your file history</h3>
           {!files || files.length === 0 ? (
             <div className="glass-card rounded-xl p-8 text-center">
               <FileSpreadsheet className="text-muted-foreground mx-auto mb-3" size={32} />
@@ -98,16 +127,17 @@ const Dashboard = () => {
                         {file.original_filename}
                       </p>
                       <p className="text-xs text-muted-foreground">
-                        {new Date(file.created_at).toLocaleDateString()} ·{" "}
+                        {new Date(file.created_at).toLocaleString()} ·{" "}
                         <span className="capitalize">{file.status}</span>
                         {file.status === "done" && file.rows_processed
-                          ? ` · ${file.rows_processed} rows`
+                          ? ` · ${file.rows_processed} rows · ${file.duplicates_removed ?? 0} duplicates removed · ${file.formats_fixed ?? 0} fixed`
                           : ""}
+                        {file.status === "error" && file.error_message ? ` · ${file.error_message}` : ""}
                       </p>
                     </div>
                   </div>
                   {file.status === "done" && file.cleaned_file_url && (
-                    <Button variant="outline" size="sm">
+                    <Button variant="outline" size="sm" onClick={() => downloadFile(file.cleaned_file_url!, file.original_filename)}>
                       <Download size={14} className="mr-1" />
                       Download
                     </Button>
