@@ -2,9 +2,17 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CreditsCard } from "@/components/dashboard/CreditsCard";
+import { BuyCreditsDialog } from "@/components/dashboard/BuyCreditsDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { DataCleaner } from "@/components/dashboard/DataCleaner";
 import {
@@ -16,11 +24,14 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  MoreVertical,
+  Coins,
 } from "lucide-react";
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [buyOpen, setBuyOpen] = useState(false);
 
   const { data: files, refetch } = useQuery({
     queryKey: ["processed-files"],
@@ -82,12 +93,32 @@ const Dashboard = () => {
             </div>
             ExcelFlow AI
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">Website</Link>
-            <span className="text-sm text-muted-foreground hidden sm:block">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground hidden sm:block">Website</Link>
+            <span className="text-sm text-muted-foreground hidden md:block truncate max-w-[200px]">
               {user?.email}
             </span>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="More options">
+                  <MoreVertical size={18} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                <DropdownMenuItem onClick={() => setBuyOpen(true)}>
+                  <Coins size={16} className="mr-2" />
+                  Buy credits
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/">Website</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut size={16} className="mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden sm:flex">
               <LogOut size={16} className="mr-1" />
               Sign out
             </Button>
@@ -114,7 +145,9 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <CreditsCard credits={credits} />
+        <CreditsCard credits={credits} onBuyCredits={() => setBuyOpen(true)} />
+
+        <BuyCreditsDialog open={buyOpen} onOpenChange={setBuyOpen} />
 
         <DataCleaner onDone={() => { refetch(); refetchCredits(); }} />
 
