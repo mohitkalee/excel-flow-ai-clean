@@ -2,9 +2,17 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { CreditsCard } from "@/components/dashboard/CreditsCard";
+import { BuyCreditsDialog } from "@/components/dashboard/BuyCreditsDialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Link } from "react-router-dom";
 import { DataCleaner } from "@/components/dashboard/DataCleaner";
 import {
@@ -16,6 +24,8 @@ import {
   CheckCircle2,
   AlertCircle,
   Loader2,
+  MoreVertical,
+  Coins,
 } from "lucide-react";
 
 const Dashboard = () => {
