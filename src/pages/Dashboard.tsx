@@ -145,7 +145,9 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <CreditsCard credits={credits} />
+        <CreditsCard credits={credits} onBuyCredits={() => setBuyOpen(true)} />
+
+        <BuyCreditsDialog open={buyOpen} onOpenChange={setBuyOpen} />
 
         <DataCleaner onDone={() => { refetch(); refetchCredits(); }} />
 
