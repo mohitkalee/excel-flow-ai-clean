@@ -31,6 +31,7 @@ import {
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const [buyOpen, setBuyOpen] = useState(false);
 
   const { data: files, refetch } = useQuery({
     queryKey: ["processed-files"],
