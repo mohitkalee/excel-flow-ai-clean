@@ -93,12 +93,32 @@ const Dashboard = () => {
             </div>
             ExcelFlow AI
           </div>
-          <div className="flex items-center gap-4">
-            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">Website</Link>
-            <span className="text-sm text-muted-foreground hidden sm:block">
+          <div className="flex items-center gap-3">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground hidden sm:block">Website</Link>
+            <span className="text-sm text-muted-foreground hidden md:block truncate max-w-[200px]">
               {user?.email}
             </span>
-            <Button variant="ghost" size="sm" onClick={handleSignOut}>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="icon" aria-label="More options">
+                  <MoreVertical size={18} />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="rounded-xl">
+                <DropdownMenuItem onClick={() => setBuyOpen(true)}>
+                  <Coins size={16} className="mr-2" />
+                  Buy credits
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/">Website</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSignOut}>
+                  <LogOut size={16} className="mr-2" />
+                  Sign out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+            <Button variant="ghost" size="sm" onClick={handleSignOut} className="hidden sm:flex">
               <LogOut size={16} className="mr-1" />
               Sign out
             </Button>
