@@ -24,6 +24,9 @@ Deno.serve(async (req) => {
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) return json({ error: "AI is not configured." }, 500);
 
+    const { data: prof } = await supabase.from("profiles").select("credits").eq("user_id", user.id).maybeSingle();
+    if (!prof || prof.credits < 1) return json({ error: "You're out of credits. Please buy more to keep cleaning." }, 402);
+
     const { columns, rows, instructions, fileId } = await req.json();
     if (!Array.isArray(columns) || !Array.isArray(rows) || rows.length === 0)
       return json({ error: "The file has no data rows." }, 400);
@@ -75,7 +78,8 @@ Deno.serve(async (req) => {
         formats_fixed: out.formats_fixed ?? 0,
       }).eq("id", fileId);
     }
-    return json(out);
+    const { data: left } = await supabase.rpc("use_credit");
+    return json({ ...out, credits_left: left });
   } catch (e: any) {
     console.error(e);
     return json({ error: e?.message ?? "Something went wrong." }, 500);

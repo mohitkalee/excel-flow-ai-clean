@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { CreditsCard } from "@/components/dashboard/CreditsCard";
+import { Link } from "react-router-dom";
 import { DataCleaner } from "@/components/dashboard/DataCleaner";
 import {
   Upload,
@@ -29,6 +31,14 @@ const Dashboard = () => {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data;
+    },
+  });
+
+  const { data: credits, refetch: refetchCredits } = useQuery({
+    queryKey: ["credits", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase.from("profiles").select("credits").eq("user_id", user!.id).maybeSingle();
+      return data?.credits ?? 0;
     },
   });
 
@@ -73,6 +83,7 @@ const Dashboard = () => {
             ExcelFlow AI
           </div>
           <div className="flex items-center gap-4">
+            <Link to="/" className="text-sm text-muted-foreground hover:text-foreground">Website</Link>
             <span className="text-sm text-muted-foreground hidden sm:block">
               {user?.email}
             </span>
@@ -103,7 +114,9 @@ const Dashboard = () => {
           ))}
         </div>
 
-        <DataCleaner onDone={() => refetch()} />
+        <CreditsCard credits={credits} />
+
+        <DataCleaner onDone={() => { refetch(); refetchCredits(); }} />
 
         {/* File history */}
         <div>
