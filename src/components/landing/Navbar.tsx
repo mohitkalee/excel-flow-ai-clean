@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Menu, Sparkles, X } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
 import { motion, AnimatePresence } from "framer-motion";
 
 const navLinks = [
@@ -13,6 +14,7 @@ const navLinks = [
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const { user } = useAuth();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/90 backdrop-blur-xl border-b border-border/70">
@@ -37,12 +39,17 @@ const Navbar = () => {
         </div>
 
         <div className="hidden md:flex items-center gap-3">
+          {user ? (
+            <Button size="sm" className="rounded-full px-6" asChild>
+              <Link to="/dashboard">My Dashboard</Link>
+            </Button>
+          ) : (<>
           <Button variant="ghost" size="sm" asChild>
             <Link to="/login">Log in</Link>
           </Button>
           <Button size="sm" className="rounded-full px-6" asChild>
             <Link to="/signup">Get Started</Link>
-          </Button>
+          </Button></>)}
         </div>
 
         <Button
@@ -76,12 +83,17 @@ const Navbar = () => {
                 </a>
               ))}
               <div className="flex gap-3 pt-2">
+                {user ? (
+                  <Button size="sm" className="flex-1" asChild>
+                    <Link to="/dashboard">My Dashboard</Link>
+                  </Button>
+                ) : (<>
                 <Button variant="ghost" size="sm" className="flex-1" asChild>
                   <Link to="/login">Log in</Link>
                 </Button>
                 <Button size="sm" className="flex-1" asChild>
                   <Link to="/signup">Get Started</Link>
-                </Button>
+                </Button></>)}
               </div>
             </div>
           </motion.div>
