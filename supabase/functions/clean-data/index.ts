@@ -122,9 +122,16 @@ Deno.serve(async (req) => {
         rows_requiring_review: sumOf("rows_requiring_review"),
         type_changes: [...typeChanges.values()],
       },
-      issues: cat("issues").slice(0, 200),
+      issues: [
+        ...cat("issues"),
+        // Only HIGH-confidence changes count as automatic; anything else goes to review
+        ...cat("changes").filter((c: any) => String(c?.confidence ?? "HIGH").toUpperCase() !== "HIGH").map((c: any) => ({
+          row: c.row, column: c.column, value: c.before, flag: `${String(c.confidence).toUpperCase()} confidence`,
+          note: c.reason, suggestion: c.after,
+        })),
+      ].slice(0, 200),
       possible_duplicates: cat("possible_duplicates"),
-      changes: cat("changes").slice(0, 200),
+      changes: cat("changes").filter((c: any) => String(c?.confidence ?? "HIGH").toUpperCase() === "HIGH").slice(0, 200),
       summary_text: "",
     } as any;
 
