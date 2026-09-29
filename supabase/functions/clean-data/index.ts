@@ -1,5 +1,4 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { createResponsesCall } from "../_shared/responses.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -73,16 +72,23 @@ Deno.serve(async (req) => {
 
     const cleanChunk = async (c: { start: number; rows: unknown[] }) => {
       const msg = `Instructions: ${extra}\n\nThis is part of a larger file. Do NOT remove duplicate rows yourself (return every row; the server removes exact duplicates). Row numbers here start at ${c.start + 1}.\n\nColumns: ${JSON.stringify(columns)}\nRows (first row = row ${c.start + 1}):\n${JSON.stringify(c.rows)}`;
-      const { result } = createResponsesCall(
-        req,
-        { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra", effort: "low" },
-        [{ role: "user", content: RULES + "\n\n" + msg }],
-      );
-      let text = "";
-      for await (const part of result.fullStream) {
-        if (part.type === "text-delta") text += (part as any).text ?? (part as any).delta ?? "";
-        if (part.type === "error") throw (part as any).error;
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "openai/gpt-6-astra",
+          reasoning: { effort: "low" },
+          store: false,
+          input: [{ role: "user", content: RULES + "\n\n" + msg }],
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text();
+        throw Object.assign(new Error(body.slice(0, 300) || `AI error ${res.status}`), { statusCode: res.status });
       }
+      const data = await res.json();
+      const text: string = data.output_text ??
+        (data.output ?? []).flatMap((o: any) => o.content ?? []).filter((c: any) => c.type === "output_text").map((c: any) => c.text).join("");
       const m = text.match(/\{[\s\S]*\}/);
       if (!m) throw new Error("The AI could not clean this file. Please try again.");
       return JSON.parse(m[0]);
