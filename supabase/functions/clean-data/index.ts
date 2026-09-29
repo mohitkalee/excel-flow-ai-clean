@@ -126,12 +126,21 @@ Deno.serve(async (req) => {
     const validation: any[] = cat("validation");
 
     let misaligned = 0;
+    const seen = new Set<string>();
+    let dupes = 0;
     const outRows: string[][] = (Array.isArray(out.rows) ? out.rows : []).map((r: unknown[]) => {
       const row = (Array.isArray(r) ? r : []).map((v) => (v == null ? "" : String(v)));
       if (row.length !== outCols.length) misaligned++;
       while (row.length < outCols.length) row.push("");
       return row.slice(0, outCols.length);
+    }).filter((row: string[]) => {
+      const key = JSON.stringify(row.map((v) => v.trim().toLowerCase()));
+      if (seen.has(key)) { dupes++; return false; }
+      seen.add(key);
+      return true;
     });
+    out.summary.duplicates_removed = dupes;
+    out.summary_text = `Cleaned ${outRows.length} rows: ${dupes} exact duplicates removed, ${out.summary.values_normalized} values fixed, ${out.summary.rows_requiring_review} rows to review.`;
     validation.push({
       check: "Column alignment",
       status: misaligned ? "warning" : "pass",
@@ -150,7 +159,7 @@ Deno.serve(async (req) => {
       rows_before: rows.length,
       rows_after: outRows.length,
       columns: outCols.length,
-      duplicates_removed: Number(s.duplicates_removed) || Math.max(0, rows.length - outRows.length),
+      duplicates_removed: Number(s.duplicates_removed) || 0,
       values_normalized: Number(s.values_normalized) || 0,
       missing_values: Number(s.missing_values) || 0,
       invalid_values: Number(s.invalid_values) || 0,
