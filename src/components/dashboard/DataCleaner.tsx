@@ -174,13 +174,38 @@ export const DataCleaner = ({ onDone }: { onDone: () => void }) => {
             ))}
           </div>
 
-          <Tabs defaultValue="preview">
+          <Tabs defaultValue="beforeafter">
             <TabsList className="flex-wrap h-auto">
-              <TabsTrigger value="preview">Preview</TabsTrigger>
+              <TabsTrigger value="beforeafter">Before → After</TabsTrigger>
+              <TabsTrigger value="preview">Clean file</TabsTrigger>
               <TabsTrigger value="review">Needs review ({result.issues.length + result.possible_duplicates.length})</TabsTrigger>
               <TabsTrigger value="changes">Change log ({result.changes.length})</TabsTrigger>
               <TabsTrigger value="checks">Safety checks</TabsTrigger>
             </TabsList>
+
+            <TabsContent value="beforeafter" className="space-y-2">
+              {result.changes.length === 0 && <p className="text-sm text-muted-foreground">No values were changed automatically.</p>}
+              {result.changes.length > 0 && (
+                <div className="overflow-auto max-h-96 rounded-xl border border-border">
+                  <table className="w-full text-sm">
+                    <thead className="bg-muted sticky top-0">
+                      <tr>{["Row", "Column", "Before", "After", "Why"].map((h) => <th key={h} className="text-left px-3 py-2 font-medium text-foreground">{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {result.changes.map((c, i) => (
+                        <tr key={i} className="border-t border-border align-top">
+                          <td className="px-3 py-2 text-muted-foreground">{c.row}</td>
+                          <td className="px-3 py-2 text-foreground">{c.column}</td>
+                          <td className="px-3 py-2"><span className="rounded bg-destructive/10 text-destructive px-1.5 py-0.5">{c.before || "(empty)"}</span></td>
+                          <td className="px-3 py-2"><span className="rounded bg-accent/10 text-accent px-1.5 py-0.5">{c.after || "(empty)"}</span></td>
+                          <td className="px-3 py-2 text-xs text-muted-foreground">{c.reason}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </TabsContent>
 
             <TabsContent value="preview">
               <div className="overflow-auto max-h-96 rounded-xl border border-border">
