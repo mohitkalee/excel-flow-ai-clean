@@ -1,5 +1,4 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
-import { createResponsesCall } from "../_shared/responses.ts";
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -62,41 +61,92 @@ Deno.serve(async (req) => {
       return json({ error: "The file has no data rows." }, 400);
     if (rows.length > MAX_ROWS) return json({ error: `Please upload up to ${MAX_ROWS} rows.` }, 400);
 
-    const user_msg = `Instructions: ${String(instructions ?? "").trim() || "(none, do a standard safe cleanup)"}\n\nColumns: ${JSON.stringify(columns)}\nRows (row 1 = first data row):\n${JSON.stringify(rows)}`;
+    // Mark this user's stale "processing" files (older than 10 min) as failed
+    await supabase.from("processed_files").update({ status: "error", error_message: "Timed out. Please try again." })
+      .eq("user_id", user.id).eq("status", "processing").lt("created_at", new Date(Date.now() - 10 * 60_000).toISOString());
 
-    const { result } = createResponsesCall(
-      req,
-      { baseURL: "https://ai.gateway.lovable.dev/v1", apiKey, model: "openai/gpt-6-astra", effort: "high" },
-      [{ role: "user", content: RULES + "\n\n" + user_msg }],
-    );
-    let text = "";
-    try {
-      for await (const part of result.fullStream) {
-        if (part.type === "text-delta") text += (part as any).text ?? (part as any).delta ?? "";
-        if (part.type === "error") throw (part as any).error;
+    const extra = String(instructions ?? "").trim() || "(none, do a standard safe cleanup)";
+    const CHUNK = 40;
+    const chunks: { start: number; rows: unknown[] }[] = [];
+    for (let i = 0; i < rows.length; i += CHUNK) chunks.push({ start: i, rows: rows.slice(i, i + CHUNK) });
+
+    const cleanChunk = async (c: { start: number; rows: unknown[] }) => {
+      const msg = `Instructions: ${extra}\n\nThis is part of a larger file. Do NOT remove duplicate rows yourself (return every row; the server removes exact duplicates). Row numbers here start at ${c.start + 1}.\n\nColumns: ${JSON.stringify(columns)}\nRows (first row = row ${c.start + 1}):\n${JSON.stringify(c.rows)}`;
+      const res = await fetch("https://ai.gateway.lovable.dev/v1/responses", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: "openai/gpt-6-astra",
+          reasoning: { effort: "low" },
+          store: false,
+          input: [{ role: "user", content: RULES + "\n\n" + msg }],
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.text();
+        throw Object.assign(new Error(body.slice(0, 300) || `AI error ${res.status}`), { statusCode: res.status });
       }
+      const data = await res.json();
+      const text: string = data.output_text ??
+        (data.output ?? []).flatMap((o: any) => o.content ?? []).filter((c: any) => c.type === "output_text").map((c: any) => c.text).join("");
+      const m = text.match(/\{[\s\S]*\}/);
+      if (!m) throw new Error("The AI could not clean this file. Please try again.");
+      return JSON.parse(m[0]);
+    };
+
+    let parts: any[];
+    try {
+      parts = await Promise.all(chunks.map(cleanChunk));
     } catch (e: any) {
       console.error("AI error", e?.statusCode, e?.message, e?.responseBody);
       const status = e?.statusCode ?? e?.lastError?.statusCode;
       if (status === 402) return json({ error: "AI credits are used up. Please add credits to continue." }, 402);
       if (status === 429) return json({ error: "Too many requests right now. Please try again in a minute." }, 429);
       if (status === 403) return json({ error: e?.message ?? "AI access was denied." }, 403);
-      throw e;
+      return json({ error: e?.message ?? "The AI could not clean this file. Please try again." }, 502);
     }
-    const match = text.match(/\{[\s\S]*\}/);
-    if (!match) return json({ error: "The AI could not clean this file. Please try again." }, 502);
-    const out = JSON.parse(match[0]);
+
+    const cat = (k: string) => parts.flatMap((p) => (Array.isArray(p?.[k]) ? p[k] : []));
+    const sumOf = (k: string) => parts.reduce((a, p) => a + (Number(p?.summary?.[k]) || 0), 0);
+    const outCols: string[] = Array.isArray(parts[0]?.columns) ? parts[0].columns.map(String) : columns.map(String);
+    const typeChanges = new Map<string, any>();
+    parts.forEach((p) => (p?.summary?.type_changes ?? []).forEach((t: any) => typeChanges.set(t?.column, t)));
+    const out = {
+      rows: cat("rows"),
+      summary: {
+        duplicates_removed: 0,
+        values_normalized: sumOf("values_normalized"),
+        missing_values: sumOf("missing_values"),
+        invalid_values: sumOf("invalid_values"),
+        ambiguous_values: sumOf("ambiguous_values"),
+        rows_requiring_review: sumOf("rows_requiring_review"),
+        type_changes: [...typeChanges.values()],
+      },
+      issues: cat("issues").slice(0, 200),
+      possible_duplicates: cat("possible_duplicates"),
+      changes: cat("changes").slice(0, 200),
+      summary_text: "",
+    } as any;
 
     // Server-side safety pass
-    const outCols: string[] = Array.isArray(out.columns) ? out.columns.map(String) : columns.map(String);
-    const validation: any[] = Array.isArray(out.validation) ? out.validation : [];
+    const validation: any[] = cat("validation");
+
     let misaligned = 0;
+    const seen = new Set<string>();
+    let dupes = 0;
     const outRows: string[][] = (Array.isArray(out.rows) ? out.rows : []).map((r: unknown[]) => {
       const row = (Array.isArray(r) ? r : []).map((v) => (v == null ? "" : String(v)));
       if (row.length !== outCols.length) misaligned++;
       while (row.length < outCols.length) row.push("");
       return row.slice(0, outCols.length);
+    }).filter((row: string[]) => {
+      const key = JSON.stringify(row.map((v) => v.trim().toLowerCase()));
+      if (seen.has(key)) { dupes++; return false; }
+      seen.add(key);
+      return true;
     });
+    out.summary.duplicates_removed = dupes;
+    out.summary_text = `Cleaned ${outRows.length} rows: ${dupes} exact duplicates removed, ${out.summary.values_normalized} values fixed, ${out.summary.rows_requiring_review} rows to review.`;
     validation.push({
       check: "Column alignment",
       status: misaligned ? "warning" : "pass",
@@ -115,7 +165,7 @@ Deno.serve(async (req) => {
       rows_before: rows.length,
       rows_after: outRows.length,
       columns: outCols.length,
-      duplicates_removed: Number(s.duplicates_removed) || Math.max(0, rows.length - outRows.length),
+      duplicates_removed: Number(s.duplicates_removed) || 0,
       values_normalized: Number(s.values_normalized) || 0,
       missing_values: Number(s.missing_values) || 0,
       invalid_values: Number(s.invalid_values) || 0,
