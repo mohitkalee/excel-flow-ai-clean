@@ -61,9 +61,9 @@ Deno.serve(async (req) => {
       return json({ error: "The file has no data rows." }, 400);
     if (rows.length > MAX_ROWS) return json({ error: `Please upload up to ${MAX_ROWS} rows.` }, 400);
 
-    // Mark this user's stale "processing" files (older than 10 min) as failed
+    // Mark this user's stale "pending"/"processing" files (older than 10 min) as failed
     await supabase.from("processed_files").update({ status: "error", error_message: "Timed out. Please try again." })
-      .eq("user_id", user.id).eq("status", "processing").lt("created_at", new Date(Date.now() - 10 * 60_000).toISOString());
+      .eq("user_id", user.id).in("status", ["pending", "processing"]).lt("created_at", new Date(Date.now() - 10 * 60_000).toISOString());
 
     const extra = String(instructions ?? "").trim() || "(none, do a standard safe cleanup)";
     const CHUNK = 40;
@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
     } catch (e: any) {
       console.error("AI error", e?.statusCode, e?.message, e?.responseBody);
       const status = e?.statusCode ?? e?.lastError?.statusCode;
-      if (status === 402) return json({ error: "AI credits are used up. Please add credits to continue." }, 402);
+      if (status === 402) return json({ error: "Cleaning is paused right now. Your credits were not used. Please try again later." }, 503);
       if (status === 429) return json({ error: "Too many requests right now. Please try again in a minute." }, 429);
       if (status === 403) return json({ error: e?.message ?? "AI access was denied." }, 403);
       return json({ error: e?.message ?? "The AI could not clean this file. Please try again." }, 502);
