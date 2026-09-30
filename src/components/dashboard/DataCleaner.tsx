@@ -85,11 +85,14 @@ export const DataCleaner = ({ onDone }: { onDone: () => void }) => {
       setResult(out);
       toast.success("Your data is clean!");
     } catch (e: any) {
-      toast.error(e.message || "Cleaning failed");
-      if (fileId) await supabase.from("processed_files").update({ status: "error", error_message: e.message }).eq("id", fileId);
+      const msg = String(e?.message || "Cleaning failed. Please try again.");
+      toast.error(msg);
+      try {
+        if (fileId) await supabase.from("processed_files").update({ status: "error", error_message: msg }).eq("id", fileId);
+      } catch { /* history update is best-effort */ }
     } finally {
       setBusy(false);
-      onDone();
+      try { onDone(); } catch { /* ignore */ }
     }
   };
 
